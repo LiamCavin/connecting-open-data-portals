@@ -1,6 +1,6 @@
-# connecting-open-data-portals
-# 
-# Open data for Scottish Official Statistics is available at 
+connecting-open-data-portals
+
+Open data for Scottish Official Statistics is available at 
 # https://statistics.gov.scot. Managed by the Scottish Goverment, this data store contains 
 # (mostly) official statistics covering a wide range of topics, and from a range 
 # of official statistics producers.
