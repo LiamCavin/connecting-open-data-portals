@@ -10,7 +10,7 @@
 #
 # Data, Statistics and Outcomes
 # Scottish Government
-# October 2018 Liam Cavin x44092
+# February 2019 Liam Cavin x44092
 #
 #=============================================================================
 #*****************************************************************************
@@ -44,6 +44,9 @@ head(arhs.hb)
 dim(arhs.hb)
 str(arhs.hb)
 
+head(arhs.ca)
+dim(arhs.ca)
+str(arhs.ca)
 
 # create function to reformat data into statistics.gov.scot upload format
 #========================================================================
@@ -57,23 +60,24 @@ arhs.format <- function(x,y) {
   pipe$Measurement <- ifelse(colnames(x)[y]=="EASRStays", "Ratio",                 # nested ifelse statements to assign the correct measurement type to the various types of arhs data
                              (ifelse(colnames(x)[y]=="EASRPatients", "Ratio",
                              (ifelse(colnames(x)[y]=="EASRNewPatients", "Ratio",
-                             (ifelse(colnames(x)[y]=="AverageNumberOfStaysPerPatient", "Ratio",
+                             (ifelse(colnames(x)[y]=="AverageNumberOfStaysPerPatient", "Mean",
                              "Count")))))))
   pipe$Units <- ifelse(colnames(x)[y]=="EASRStays", "Stays Per 100,00 Population",        # nested ifelse statements to assign the correct measurement units to the various types of arhs data
                        (ifelse(colnames(x)[y]=="EASRPatients", "Patients Per 100,00 Population",
-                       (ifelse(colnames(x)[y]=="EASRNewPatients", "Patients Per 100,00 Population",
+                       (ifelse(colnames(x)[y]=="EASRNewPatients", "New Patients Per 100,00 Population",
                        (ifelse(colnames(x)[y]=="NumberOfStays", "Stays",
                        (ifelse(colnames(x)[y]=="NumberOfPatients", "Patients",
-                       (ifelse(colnames(x)[y]=="NumberOfNewPatients", "Patients",
-                       "Average Stays Per Patient")))))))))))
+                       (ifelse(colnames(x)[y]=="NumberOfNewPatients", "New Patients",
+                       "Stays Per Patient")))))))))))
   pipe$Value <- x[,y]                   # fetch the observations
   pipe$AlcoholCondition <- x[,1]        # fetch the alcohol condition descriptive text, with no reformatting
   pipe$AlcoholRelatedStay <- ifelse(colnames(x)[y]=="EASRStays", "Stays",            # nested ifelse statements to assign an appropriate name to the arhs data types 
+                                    (ifelse(colnames(x)[y]=="EASRPatients", "Patients",
                                     (ifelse(colnames(x)[y]=="EASRNewPatients", "New Patients",
                                     (ifelse(colnames(x)[y]=="NumberOfStays", "Stays",
                                     (ifelse(colnames(x)[y]=="NumberOfPatients", "Patients",
                                     (ifelse(colnames(x)[y]=="NumberOfNewPatients", "New Patients",
-                                    "Average Stays Per Patient")))))))))
+                                    "Average Stays Per Patient")))))))))))
   pipe$TypeOfHospital <- ifelse(x[,4] == "SMR01", "General Acute Hospital",         # nested ifelse statements to assign hospital type from SMR code
                                 (ifelse(x[,4] == "SMR04", "Psychiatric Hospital", "All")))
   colnames(pipe)[8] <- "Type Of Hospital"                    # rename columns
@@ -126,10 +130,24 @@ unique(arhs.odpp[,4])
 # Fix this
 #=========================================================
 
-arhs.odpp[,1] <-  str_replace_all(arhs.odpp[,1], fixed("S12000015"), "S12000047")
-arhs.odpp[,1] <-  str_replace_all(arhs.odpp[,1], fixed("S12000024"), "S12000048")
-arhs.odpp[,1] <-  str_replace_all(arhs.odpp[,1], fixed("S08000018"), "S08000029")
-arhs.odpp[,1] <-  str_replace_all(arhs.odpp[,1], fixed("S08000027"), "S08000030")
+# this code was relevant for the 2017 release of data, which included the obsolete codes
+# now fixed in the 2018 data release
+
+# arhs.odpp[,1] <-  str_replace_all(arhs.odpp[,1], fixed("S12000015"), "S12000047")
+# arhs.odpp[,1] <-  str_replace_all(arhs.odpp[,1], fixed("S12000024"), "S12000048")
+# arhs.odpp[,1] <-  str_replace_all(arhs.odpp[,1], fixed("S08000018"), "S08000029")
+# arhs.odpp[,1] <-  str_replace_all(arhs.odpp[,1], fixed("S08000027"), "S08000030")
+
+
+
+
+# Edit the alcohol condition strings to make more understandable
+#===============================================================
+
+unique(arhs.odpp[,6])
+arhs.odpp[,6] <- str_replace_all(arhs.odpp[,6], fixed("Alcoholic Liver Disease: All"), "All Alcoholic Liver Disease (ALD)")
+arhs.odpp[,6] <- str_replace_all(arhs.odpp[,6], fixed("Mental & behavioural disorders due to use of alcohol: All"), "All mental & behavioural disorders due to use of alcohol (M&B)")
+
 
 
 
@@ -139,7 +157,7 @@ arhs.odpp[,1] <-  str_replace_all(arhs.odpp[,1], fixed("S08000027"), "S08000030"
 # my local directory, but you can change this to yours
 setwd("//scotland.gov.uk//dc1//fs3_home//u441625")
 
-write.csv(arhs.odpp, "arhs_with_geography_for_odpp.csv", row.names=FALSE)
+write.csv(arhs.odpp, "arhs_with_geography_for_odpp_2018.csv", row.names=FALSE)
 
 
 # yaldi
