@@ -56,7 +56,7 @@ library("stringr")
 places.format <- function(x,y) {
   pipe <- data.frame(str_sub(x[,"CA2011"]))  
   names(pipe) <- "GeographyCode"      
-  pipe$DateCode <-  x[,"?..Date"]             
+  pipe$DateCode <-  x[,"ï..Date"]             
   pipe$Measurement <- x[,"Unit"]
   pipe$Units <- x[,"KeyStatistic"]
   pipe$Value <- x[,"Value"]                   
@@ -107,7 +107,7 @@ placesODPP[,4] <- str_replace_all(placesODPP[,4], fixed("Number of Registered Pl
 #=====================================================================
 
 # my local directory, but you can change this to yours
-setwd("//scotland.gov.uk//dc1//fs3_home//u441625")
+setwd("C:/Users/augno/Documents/connecting-open-data-portals")
 
 write.csv(placesODPP, "care_home_places.csv", row.names=FALSE)
 
