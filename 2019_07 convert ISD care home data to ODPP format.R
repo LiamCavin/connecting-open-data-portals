@@ -107,7 +107,8 @@ placesODPP[,4] <- str_replace_all(placesODPP[,4], fixed("Number of Registered Pl
 #=====================================================================
 
 # my local directory, but you can change this to yours
-setwd("C:/Users/augno/Documents/connecting-open-data-portals")
+# setwd("//scotland.gov.uk//dc1//fs3_home//u441625")
+# setwd("C:/Users/augno/Documents/connecting-open-data-portals")
 
 write.csv(placesODPP, "care_home_places.csv", row.names=FALSE)
 
