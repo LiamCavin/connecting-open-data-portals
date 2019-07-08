@@ -438,25 +438,26 @@ unique(demODPP[,8])
 
 # Edit the headers and text strings 
 colnames(demODPP)[colnames(demODPP)=="ClientGroup"] <- "Care Home Client Group"
+
 demODPP[,"DateCode"] <- str_sub(demODPP[,"DateCode"], 1, 4)
+
 demODPP[,"Measurement"] <- str_replace_all(demODPP[,"Measurement"], fixed("Percentage"), "Percent")
 demODPP[,"Measurement"] <- str_replace_all(demODPP[,"Measurement"], fixed("Number"), "Count")
+
 demODPP[,"Units"] <- str_replace_all(demODPP[,"Units"], fixed("Percentage"), "Percentage of Long Stay Residents")
 demODPP[,"Units"] <- str_replace_all(demODPP[,"Units"], fixed("Number"), "People")
 
-agetext2remove <- c("Number of ", "Percentage of", "Long Stay Residents ", "Aged", "Male ", "Female ", "and ")
+demODPP[,"Age"] <-  str_replace_all(demODPP[,"Age"], c("Number of " = "", "Percentage of " = "", "Long Stay Residents " = "",
+                                     "Aged " = "", "Male " = "", "and Female " = "", "Female " = "", "Long Stay Residents " = "",
+                                     "Long Stay Residents" = "All", "and" = "And"))
 
-demODPP[,"Age"] <- demODPP[,"Age"] %>%
-                   str_replace_all(c("Number of " = "", "Percentage of" = "", "Long Stay Residents " = "",
-                                     "Aged" = "", "Male " = "", "Female " = "", "and " = ""))
-
-
-demODPP[,"Age"] <- str_replace_all(demODPP[,"Age"], agetext2remove,"")
-demODPP[,"Age"] <- str_replace_all(demODPP[,"Age"], fixed("Number of Long Stay Residents "), "")
-demODPP[,"Age"] <- str_replace_all(demODPP[,"Age"], fixed("with "), "")
-demODPP[,"Age"] <- str_replace_all(demODPP[,"Age"], fixed("Disability"), "Disabilities")
+demODPP[,"Sex"] <- str_replace_all(demODPP[,"Sex"], c("Male and Female" = "All", "Long" = 'All',
+                                                      "Percentage of " = "", "Number of " = ""))
+demODPP[,"Sex"] <- str_sub(demODPP[,"Sex"], 1, 4)
+demODPP[,"Sex"] <- str_replace_all(demODPP[,"Sex"], "Fema", "Female")
 
 demODPP[,"Value"] <- round(demODPP[,"Value"])
+
 
 # Finally, export the dataset, ready for upload to statistics.gov.scot 
 # my local directory, but you can change this to yours
