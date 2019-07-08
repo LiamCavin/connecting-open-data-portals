@@ -353,10 +353,10 @@ healthODPP[,"Health Characteristic of Residents"] <- str_replace_all(healthODPP[
 healthODPP[,"Health Characteristic of Residents"] <- str_replace_all(healthODPP[,"Health Characteristic of Residents"], 
                                                                      fixed("with "), "")
 healthODPP[,"Health Characteristic of Residents"] <- str_replace_all(healthODPP[,"Health Characteristic of Residents"], 
-                                                                     fixed("Disabilities"), "Disability")
+                                                                     fixed("Disability"), "Disabilities")
 # only one sector in this dataset, so drop it
 healthODPP <- healthODPP[, !(names(healthODPP) %in% "Sector")]
-
+healthODPP[,"Value"] <- round(healthODPP[,"Value"])
 
 # Finally, export the dataset, ready for upload to statistics.gov.scot 
 # my local directory, but you can change this to yours
