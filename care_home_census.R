@@ -13,7 +13,9 @@
 # 
 # 1. Number and rate of care home places 
 # 2. Number care homes
-# 3. 
+# 3. Occupancy rate
+# 4. Health Characteristics
+# 5. Demographic Characteristics
 #
 #=============================================================================
 #*****************************************************************************
@@ -21,10 +23,8 @@
 
 # next jobs needing attention: create files for upload for datasets covering:
 #
-# - health characteristics of care home residents (% and no)
-# - occupancy rate of care homes LC-WIP
 # - admissions, discharges and deaths of residents
-# - demographic characteristics of residents and average age (% and no)
+# - demographic characteristics of residents and average age (% and no) LC-WIP
 # - type and length (& average length) of stay
 # - soures of funding and weekly charges
 # 
@@ -364,5 +364,105 @@ healthODPP[,"Value"] <- round(healthODPP[,"Value"])
 # setwd("C:/Users/augno/Documents/connecting-open-data-portals")
 
 write.csv(healthODPP, "health.csv", row.names=FALSE)
+
+# yaldi
+
+
+
+#===========================================================================
+
+#===========================================================================
+#
+# 5. Demographic Characteristics of Care Home Residents
+#
+#===========================================================================
+
+#===========================================================================
+
+# start with a clean slate
+rm(list=ls())
+
+# read the data from the NHS CKAN website
+number.dem <- read.csv("https://www.opendata.nhs.scot/dataset/75cca0a9-780d-40e0-9e1f-5f4796950794/resource/39d2b480-2990-46a2-bd58-96aac41a032a/download/file11_nos_sex_age_2007_2017.csv")
+percent.dem <- read.csv("https://www.opendata.nhs.scot/dataset/75cca0a9-780d-40e0-9e1f-5f4796950794/resource/f2f376d8-f101-41f5-adb0-3249ed31cce0/download/file9_perc_sex_age_2007_2017.csv")
+
+
+# and have a peek at them
+head(number.dem)
+dim(number.dem)
+str(number.dem)
+unique(number.dem[,5])
+colnames(number.dem)[colnames(number.dem)=="Country"] <- "CA2011"
+
+head(percent.dem)
+dim(percent.dem)
+str(percent.dem)
+unique(percent.dem[,5])
+
+
+# create function to reformat data into statistics.gov.scot upload format
+dem.format <- function(x,y) {
+  pipe <- data.frame(str_sub(x[,"CA2011"])) 
+  names(pipe) <- "GeographyCode"      
+  pipe$DateCode <-  x[,"ï..Date"]             
+  pipe$Measurement <- x[,"Unit"]
+  pipe$Units <- x[,"Unit"]
+  pipe$Age <- x[,"KeyStatistic"]
+  pipe$Sex <- x[,"KeyStatistic"]
+  pipe$Value <- x[,"Value"]                   
+  pipe$ClientGroup <- x[,"MainClientGroup"]        
+  return(pipe)
+}
+
+# run reformating function on datasets
+demODPP  <- rbind(dem.format(number.dem), dem.format(percent.dem))
+
+# remove any NAs and duplicates
+demODPP <- demODPP[complete.cases(demODPP),]
+demODPP <- unique(demODPP)
+
+#review output
+head(demODPP)
+dim(demODPP)
+str(demODPP)
+typeof(demODPP)
+summary(demODPP)
+unique(demODPP[,1])
+unique(demODPP[,2])
+unique(demODPP[,3])
+unique(demODPP[,4])
+unique(demODPP[,5])
+unique(demODPP[,6])
+unique(demODPP[,7])
+unique(demODPP[,8])
+
+# Edit the headers and text strings 
+colnames(demODPP)[colnames(demODPP)=="ClientGroup"] <- "Care Home Client Group"
+demODPP[,"DateCode"] <- str_sub(demODPP[,"DateCode"], 1, 4)
+demODPP[,"Measurement"] <- str_replace_all(demODPP[,"Measurement"], fixed("Percentage"), "Percent")
+demODPP[,"Measurement"] <- str_replace_all(demODPP[,"Measurement"], fixed("Number"), "Count")
+demODPP[,"Units"] <- str_replace_all(demODPP[,"Units"], fixed("Percentage"), "Percentage of Long Stay Residents")
+demODPP[,"Units"] <- str_replace_all(demODPP[,"Units"], fixed("Number"), "People")
+
+agetext2remove <- c("Number of ", "Percentage of", "Long Stay Residents ", "Aged", "Male ", "Female ", "and ")
+
+demODPP[,"Age"] <- demODPP[,"Age"] %>%
+                   str_replace_all(c("Number of " = "", "Percentage of" = "", "Long Stay Residents " = "",
+                                     "Aged" = "", "Male " = "", "Female " = "", "and " = ""))
+
+
+demODPP[,"Age"] <- str_replace_all(demODPP[,"Age"], agetext2remove,"")
+demODPP[,"Age"] <- str_replace_all(demODPP[,"Age"], fixed("Number of Long Stay Residents "), "")
+demODPP[,"Age"] <- str_replace_all(demODPP[,"Age"], fixed("with "), "")
+demODPP[,"Age"] <- str_replace_all(demODPP[,"Age"], fixed("Disability"), "Disabilities")
+
+demODPP[,"Value"] <- round(demODPP[,"Value"])
+
+# Finally, export the dataset, ready for upload to statistics.gov.scot 
+# my local directory, but you can change this to yours
+# setwd("//scotland.gov.uk//dc1//fs3_home//u441625")
+# setwd("C:/Users/augno/Documents/connecting-open-data-portals")
+
+write.csv(demODPP, "demography.csv", row.names=FALSE)
 
 # yaldi
