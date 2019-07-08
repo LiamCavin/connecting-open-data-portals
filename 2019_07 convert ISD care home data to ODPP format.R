@@ -29,9 +29,6 @@
 # - soures of funding and weekly charges
 # 
 
-# start with a clean slate
-rm(list=ls())
-
 # load in the approriate package
 # and any others that are needed 
 # for this script.
@@ -49,6 +46,10 @@ library("stringr")
 #===========================================================================
 
 #===========================================================================
+
+
+# start with a clean slate
+rm(list=ls())
 
 # read in the data from NHS CKAN website
 numberplaces <- read.csv("https://www.opendata.nhs.scot/dataset/75cca0a9-780d-40e0-9e1f-5f4796950794/resource/04958b74-a351-4dc0-b8e4-cbc369372804/download/file14_nos_registered_places_2007_2017.csv")
@@ -128,6 +129,9 @@ write.csv(placesODPP, "care_home_places.csv", row.names=FALSE)
 
 #===========================================================================
 
+# start with a clean slate
+rm(list=ls())
+
 # read the data from the NHS CKAN website
 numberhomes <- read.csv("https://www.opendata.nhs.scot/dataset/75cca0a9-780d-40e0-9e1f-5f4796950794/resource/29f79bd7-9810-436d-9b29-2ede440adc87/download/file13_carehomes_2007_2017.csv")
 
@@ -154,7 +158,7 @@ homes.format <- function(x,y) {
 homesODPP  <- homes.format(numberhomes)
 
 # remove any NAs and duplicates
-homesODPP <- homesODPP[complete.cases(homesODPP), ]
+homesODPP <- homesODPP[complete.cases(homesODPP),]
 homesODPP <- unique(homesODPP)
 
 #review output
@@ -201,17 +205,20 @@ write.csv(homesODPP, "number_care_homes.csv", row.names=FALSE)
 
 #===========================================================================
 
+# start with a clean slate
+rm(list=ls())
+
 # read the data from the NHS CKAN website
-numberhomes <- read.csv("https://www.opendata.nhs.scot/dataset/75cca0a9-780d-40e0-9e1f-5f4796950794/resource/29f79bd7-9810-436d-9b29-2ede440adc87/download/file13_carehomes_2007_2017.csv")
+occupancy <- read.csv("https://www.opendata.nhs.scot/dataset/75cca0a9-780d-40e0-9e1f-5f4796950794/resource/e5e5bd8f-a2c9-4898-bbb0-21488e7433f2/download/file6_occupancy_2007_2017.csv")
 
 # and have a peek at it
-head(numberhomes)
-dim(numberhomes)
-str(numberhomes)
-unique(numberhomes[,9])
+head(occupancy)
+dim(occupancy)
+str(occupancy)
+unique(occupancy[,7])
 
 # create function to reformat data into statistics.gov.scot upload format
-homes.format <- function(x,y) {
+occupancy.format <- function(x,y) {
   pipe <- data.frame(str_sub(x[,"CA2011"]))  
   names(pipe) <- "GeographyCode"      
   pipe$DateCode <-  x[,"ï..Date"]             
@@ -224,41 +231,138 @@ homes.format <- function(x,y) {
 }
 
 # run reformating function on datasets
-homesODPP  <- homes.format(numberhomes)
+occupancyODPP  <- occupancy.format(occupancy)
 
 # remove any NAs and duplicates
-homesODPP <- homesODPP[complete.cases(homesODPP), ]
-homesODPP <- unique(homesODPP)
+occupancyODPP <- occupancyODPP[complete.cases(occupancyODPP),]
+occupancyODPP <- unique(occupancyODPP)
 
 #review output
-head(homesODPP)
-dim(homesODPP)
-str(homesODPP)
-typeof(homesODPP)
-summary(homesODPP)
-unique(homesODPP[,1])
-unique(homesODPP[,2])
-unique(homesODPP[,3])
-unique(homesODPP[,4])
-unique(homesODPP[,5])
-unique(homesODPP[,6])
-unique(homesODPP[,7])
+head(occupancyODPP)
+dim(occupancyODPP)
+str(occupancyODPP)
+typeof(occupancyODPP)
+summary(occupancyODPP)
+unique(occupancyODPP[,1])
+unique(occupancyODPP[,2])
+unique(occupancyODPP[,3])
+unique(occupancyODPP[,4])
+unique(occupancyODPP[,5])
+unique(occupancyODPP[,6])
+unique(occupancyODPP[,7])
 
 # Edit the headers and text strings 
-colnames(homesODPP)[colnames(homesODPP)=="ClientGroup"] <- "Care Home Client Group"
-colnames(homesODPP)[colnames(homesODPP)=="Sector"] <- "Care Home Sector"
-homesODPP[,"DateCode"] <- str_sub(homesODPP[,"DateCode"], 1, 4)
-homesODPP[,"Measurement"] <- str_replace_all(homesODPP[,"Measurement"], fixed("Number"), "Count")
-homesODPP[,"Measurement"] <- str_replace_all(homesODPP[,"Measurement"], fixed("Rate"), "Ratio")
-homesODPP[,"Units"] <- str_replace_all(homesODPP[,"Units"], fixed("Number of Registered Places for Older People per 1000 population"), 
-                                       "Number of Registered Places per 1000 population")
+colnames(occupancyODPP)[colnames(occupancyODPP)=="ClientGroup"] <- "Care Home Client Group"
+colnames(occupancyODPP)[colnames(occupancyODPP)=="Sector"] <- "Care Home Sector"
+occupancyODPP[,"DateCode"] <- str_sub(occupancyODPP[,"DateCode"], 1, 4)
+occupancyODPP[,"Measurement"] <- str_replace_all(occupancyODPP[,"Measurement"], fixed("Percentage"), "Percent")
+
 
 # Finally, export the dataset, ready for upload to statistics.gov.scot 
 # my local directory, but you can change this to yours
 # setwd("//scotland.gov.uk//dc1//fs3_home//u441625")
 # setwd("C:/Users/augno/Documents/connecting-open-data-portals")
 
-write.csv(homesODPP, "number_care_homes.csv", row.names=FALSE)
+write.csv(occupancyODPP, "occupancy_rate.csv", row.names=FALSE)
 
 # yaldi
 
+
+
+#===========================================================================
+
+#===========================================================================
+#
+# 4. Health Characteristics of Care Home Residents
+#
+#===========================================================================
+
+#===========================================================================
+
+# start with a clean slate
+rm(list=ls())
+
+# read the data from the NHS CKAN website
+number.health <- read.csv("https://www.opendata.nhs.scot/dataset/75cca0a9-780d-40e0-9e1f-5f4796950794/resource/92ebf3df-2af4-4d73-9397-f5d6a6778da7/download/file10_nos_health_characteristics_2007_2017.csv")
+percent.health <- read.csv("https://www.opendata.nhs.scot/dataset/75cca0a9-780d-40e0-9e1f-5f4796950794/resource/9bf418aa-c54d-45d3-8306-023e81f49f60/download/file8_perc_health_characteristics_2007_2017.csv")
+
+
+# and have a peek at them
+head(number.health)
+dim(number.health)
+str(number.health)
+unique(number.health[,7])
+colnames(number.health)[colnames(number.health)=="Country"] <- "CA2011"
+
+
+head(percent.health)
+dim(percent.health)
+str(percent.health)
+unique(percent.health[,7])
+colnames(percent.health)[colnames(percent.health)=="ï..Date"] <- "Date"
+
+# create function to reformat data into statistics.gov.scot upload format
+health.format <- function(x,y) {
+  pipe <- data.frame(str_sub(x[,"CA2011"])) 
+  names(pipe) <- "GeographyCode"      
+  pipe$DateCode <-  x[,"Date"]             
+  pipe$Measurement <- x[,"Unit"]
+  pipe$Units <- x[,"Unit"]
+  pipe$HealthChar <- x[,"KeyStatistic"]
+  pipe$Value <- x[,"Value"]                   
+  pipe$ClientGroup <- x[,"MainClientGroup"]        
+  pipe$Sector <- x[,"Sector"]
+  return(pipe)
+}
+
+# run reformating function on datasets
+healthODPP  <- rbind(health.format(percent.health), health.format(number.health))
+
+# remove any NAs and duplicates
+healthODPP <- healthODPP[complete.cases(healthODPP),]
+healthODPP <- unique(healthODPP)
+
+#review output
+head(healthODPP)
+dim(healthODPP)
+str(healthODPP)
+typeof(healthODPP)
+summary(healthODPP)
+unique(healthODPP[,1])
+unique(healthODPP[,2])
+unique(healthODPP[,3])
+unique(healthODPP[,4])
+unique(healthODPP[,5])
+unique(healthODPP[,6])
+unique(healthODPP[,7])
+
+# Edit the headers and text strings 
+colnames(healthODPP)[colnames(healthODPP)=="ClientGroup"] <- "Care Home Client Group"
+colnames(healthODPP)[colnames(healthODPP)=="HealthChar"] <- "Health Characteristic of Residents"
+
+healthODPP[,"DateCode"] <- str_sub(healthODPP[,"DateCode"], 1, 4)
+healthODPP[,"Measurement"] <- str_replace_all(healthODPP[,"Measurement"], fixed("Percentage"), "Percent")
+healthODPP[,"Measurement"] <- str_replace_all(healthODPP[,"Measurement"], fixed("Number"), "Count")
+healthODPP[,"Units"] <- str_replace_all(healthODPP[,"Units"], fixed("Percentage"), "Percentage of Long Stay Residents")
+healthODPP[,"Units"] <- str_replace_all(healthODPP[,"Units"], fixed("Number"), "People")
+
+healthODPP[,"Health Characteristic of Residents"] <- str_replace_all(healthODPP[,"Health Characteristic of Residents"], 
+                                                                     fixed("Percentage of Long Stay Residents "), "")
+healthODPP[,"Health Characteristic of Residents"] <- str_replace_all(healthODPP[,"Health Characteristic of Residents"], 
+                                                                     fixed("Number of Long Stay Residents "), "")
+healthODPP[,"Health Characteristic of Residents"] <- str_replace_all(healthODPP[,"Health Characteristic of Residents"], 
+                                                                     fixed("with "), "")
+healthODPP[,"Health Characteristic of Residents"] <- str_replace_all(healthODPP[,"Health Characteristic of Residents"], 
+                                                                     fixed("Disabilities"), "Disability")
+# only one sector in this dataset, so drop it
+healthODPP <- healthODPP[, !(names(healthODPP) %in% "Sector")]
+
+
+# Finally, export the dataset, ready for upload to statistics.gov.scot 
+# my local directory, but you can change this to yours
+# setwd("//scotland.gov.uk//dc1//fs3_home//u441625")
+# setwd("C:/Users/augno/Documents/connecting-open-data-portals")
+
+write.csv(healthODPP, "health.csv", row.names=FALSE)
+
+# yaldi
