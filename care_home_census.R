@@ -587,6 +587,7 @@ dim(ADDraw)
 str(ADDraw)
 unique(ADDraw[,3])
 unique(ADDraw[,4])
+unique(ADDraw[,5])
 unique(ADDraw[,6])
 unique(ADDraw[,7])
 unique(ADDraw[,8])
@@ -678,6 +679,7 @@ dim(ageraw)
 str(ageraw)
 unique(ageraw[,3])
 unique(ageraw[,4])
+unique(ageraw[,5])
 unique(ageraw[,6])
 unique(ageraw[,7])
 unique(ageraw[,8])
@@ -690,6 +692,7 @@ age.format <- function(x,y) {
   pipe$Units <- "Years"
   pipe$Measurement <- x[,"KeyStatistic"]
   pipe$AgeOfResidents <- x[,"KeyStatistic"]
+  pipe$ClientGroup <- x[,"MainClientGroup"]
   pipe$Value <- x[,"Value"]                   
   return(pipe)
 }
@@ -715,10 +718,13 @@ unique(ageODPP[,3])
 unique(ageODPP[,4])
 unique(ageODPP[,5])
 unique(ageODPP[,6])
+unique(ageODPP[,7])
+
 
 # Edit the headers and text strings 
 ageODPP[,"DateCode"] <- str_sub(ageODPP[,"DateCode"], 1, 4)
 colnames(ageODPP)[colnames(ageODPP)=="AgeOfResidents"] <- "Age Of Residents"
+colnames(ageODPP)[colnames(ageODPP)=="ClientGroup"] <- "Care Home Client Group"
 ageODPP[,"Age Of Residents"] <- str_replace_all(ageODPP[,"Age Of Residents"], 
                                                 c("Mean " = "", "Median " = ""))
 ageODPP[,"Measurement"] <- gsub("Mean.*", "Mean", ageODPP[,"Measurement"])
@@ -843,7 +849,7 @@ write.csv(typeODPP, "type_of_stay.csv", row.names=FALSE)
 
 #===========================================================================
 #
-# 8. Length of stay
+# 9. Length of stay
 #
 #===========================================================================
 
