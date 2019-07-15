@@ -24,7 +24,6 @@
 
 # next jobs needing attention: create files for upload for datasets covering:
 #
-# - updating sections 1-5 with JSON API rather than read.csv
 # - average age 
 # - type and length (& average length) of stay
 # - soures of funding and weekly charges
@@ -53,9 +52,25 @@ library(jsonlite) #Version 1.6
 # start with a clean slate
 rm(list=ls())
 
-# read in the data from NHS CKAN website
-numberplaces <- read.csv("https://www.opendata.nhs.scot/dataset/75cca0a9-780d-40e0-9e1f-5f4796950794/resource/04958b74-a351-4dc0-b8e4-cbc369372804/download/file14_nos_registered_places_2007_2017.csv")
-rateplaces <- read.csv("https://www.opendata.nhs.scot/dataset/75cca0a9-780d-40e0-9e1f-5f4796950794/resource/d2f8b247-1b0d-40e1-92f8-df8cd21d5a17/download/file15_rate_registered_places_2007_2017.csv")
+# read the data from the NHS CKAN website. API download limit = 32000 rows
+url  <- "https://www.opendata.nhs.scot"
+path.number <- "/api/3/action/datastore_search?resource_id=04958b74-a351-4dc0-b8e4-cbc369372804&limit=32000"
+path.rate <- "/api/3/action/datastore_search?resource_id=d2f8b247-1b0d-40e1-92f8-df8cd21d5a17&limit=32000"
+
+raw.number <- GET(url = url, path = path.number)
+raw.rate <- GET(url = url, path = path.rate)
+
+# code 200 is ok
+raw.number$status_code 
+raw.rate$status_code 
+
+# Translates it into text and parse character string containing JSON file into something R can work with
+number.content <- fromJSON(rawToChar(raw.number$content))
+rate.content <- fromJSON(rawToChar(raw.rate$content))
+
+# Should be a list with 3 elements - 3rd element contains the data and notes
+numberplaces <- number.content[[3]]$records
+rateplaces <- rate.content[[3]]$records
 
 # and have a peek at it
 head(numberplaces)
@@ -72,7 +87,7 @@ unique(rateplaces[,7])
 places.format <- function(x,y) {
   pipe <- data.frame(str_sub(x[,"CA2011"]))  
   names(pipe) <- "GeographyCode"      
-  pipe$DateCode <-  x[,"ï..Date"]             
+  pipe$DateCode <-  x[,"Date"]             
   pipe$Measurement <- x[,"Unit"]
   pipe$Units <- x[,"KeyStatistic"]
   pipe$Value <- x[,"Value"]                   
@@ -87,6 +102,8 @@ placesODPP  <- rbind(places.format(numberplaces), places.format(rateplaces))
 # remove NAs and duplicates
 placesODPP <- placesODPP[complete.cases(placesODPP),]
 placesODPP <- unique(placesODPP)
+placesODPP$Value <- as.numeric(placesODPP[,"Value"])
+placesODPP <- data.frame(na.omit(placesODPP))
 
 #review output
 head(placesODPP)
@@ -134,8 +151,20 @@ write.csv(placesODPP, "care_home_places.csv", row.names=FALSE)
 # start with a clean slate
 rm(list=ls())
 
-# read the data from the NHS CKAN website
-numberhomes <- read.csv("https://www.opendata.nhs.scot/dataset/75cca0a9-780d-40e0-9e1f-5f4796950794/resource/29f79bd7-9810-436d-9b29-2ede440adc87/download/file13_carehomes_2007_2017.csv")
+# read the data from the NHS CKAN website. API download limit = 32000 rows
+url  <- "https://www.opendata.nhs.scot"
+path <- "/api/3/action/datastore_search?resource_id=29f79bd7-9810-436d-9b29-2ede440adc87&limit=32000"
+
+raw.homes <- GET(url = url, path = path)
+
+# code 200 is ok
+raw.homes$status_code 
+
+# Translates it into text and parse character string containing JSON file into something R can work with
+homes.content <- fromJSON(rawToChar(raw.homes$content))
+
+# Should be a list with 3 elements - 3rd element contains the data and notes
+numberhomes <- homes.content[[3]]$records
 
 # and have a peek at it
 head(numberhomes)
@@ -147,7 +176,7 @@ unique(numberhomes[,9])
 homes.format <- function(x,y) {
   pipe <- data.frame(str_sub(x[,"CA2011"]))  
   names(pipe) <- "GeographyCode"      
-  pipe$DateCode <-  x[,"ï..Date"]             
+  pipe$DateCode <-  x[,"Date"]             
   pipe$Measurement <- x[,"Unit"]
   pipe$Units <- x[,"KeyStatistic"]
   pipe$Value <- x[,"Value"]                   
@@ -162,6 +191,8 @@ homesODPP  <- homes.format(numberhomes)
 # remove any NAs and duplicates
 homesODPP <- homesODPP[complete.cases(homesODPP),]
 homesODPP <- unique(homesODPP)
+homesODPP$Value <- as.numeric(homesODPP[,"Value"])
+homesODPP <- data.frame(na.omit(homesODPP))
 
 #review output
 head(homesODPP)
@@ -210,8 +241,20 @@ write.csv(homesODPP, "number_care_homes.csv", row.names=FALSE)
 # start with a clean slate
 rm(list=ls())
 
-# read the data from the NHS CKAN website
-occupancy <- read.csv("https://www.opendata.nhs.scot/dataset/75cca0a9-780d-40e0-9e1f-5f4796950794/resource/e5e5bd8f-a2c9-4898-bbb0-21488e7433f2/download/file6_occupancy_2007_2017.csv")
+# read the data from the NHS CKAN website. API download limit = 32000 rows
+url  <- "https://www.opendata.nhs.scot"
+path <- "/api/3/action/datastore_search?resource_id=e5e5bd8f-a2c9-4898-bbb0-21488e7433f2&limit=32000"
+
+raw.occupancy <- GET(url = url, path = path)
+
+# code 200 is ok
+raw.occupancy$status_code 
+
+# Translates it into text and parse character string containing JSON file into something R can work with
+occupancy.content <- fromJSON(rawToChar(raw.occupancy$content))
+
+# Should be a list with 3 elements - 3rd element contains the data and notes
+occupancy<- occupancy.content[[3]]$records
 
 # and have a peek at it
 head(occupancy)
@@ -223,7 +266,7 @@ unique(occupancy[,7])
 occupancy.format <- function(x,y) {
   pipe <- data.frame(str_sub(x[,"CA2011"]))  
   names(pipe) <- "GeographyCode"      
-  pipe$DateCode <-  x[,"ï..Date"]             
+  pipe$DateCode <-  x[,"Date"]             
   pipe$Measurement <- x[,"Unit"]
   pipe$Units <- x[,"KeyStatistic"]
   pipe$Value <- x[,"Value"]                   
@@ -238,6 +281,8 @@ occupancyODPP  <- occupancy.format(occupancy)
 # remove any NAs and duplicates
 occupancyODPP <- occupancyODPP[complete.cases(occupancyODPP),]
 occupancyODPP <- unique(occupancyODPP)
+occupancyODPP$Value <- as.numeric(occupancyODPP[,"Value"])
+occupancyODPP <- data.frame(na.omit(occupancyODPP))
 
 #review output
 head(occupancyODPP)
@@ -284,10 +329,25 @@ write.csv(occupancyODPP, "occupancy_rate.csv", row.names=FALSE)
 # start with a clean slate
 rm(list=ls())
 
-# read the data from the NHS CKAN website
-number.health <- read.csv("https://www.opendata.nhs.scot/dataset/75cca0a9-780d-40e0-9e1f-5f4796950794/resource/92ebf3df-2af4-4d73-9397-f5d6a6778da7/download/file10_nos_health_characteristics_2007_2017.csv")
-percent.health <- read.csv("https://www.opendata.nhs.scot/dataset/75cca0a9-780d-40e0-9e1f-5f4796950794/resource/9bf418aa-c54d-45d3-8306-023e81f49f60/download/file8_perc_health_characteristics_2007_2017.csv")
+# read the data from the NHS CKAN website. API download limit = 32000 rows
+url  <- "https://www.opendata.nhs.scot"
+path.number <- "/api/3/action/datastore_search?resource_id=92ebf3df-2af4-4d73-9397-f5d6a6778da7&limit=32000"
+path.percent <- "/api/3/action/datastore_search?resource_id=9bf418aa-c54d-45d3-8306-023e81f49f60&limit=32000"
 
+raw.number <- GET(url = url, path = path.number)
+raw.percent <- GET(url = url, path = path.percent)
+
+# code 200 is ok
+raw.number$status_code 
+raw.percent$status_code 
+
+# Translates it into text and parse character string containing JSON file into something R can work with
+number.content <- fromJSON(rawToChar(raw.number$content))
+percent.content <- fromJSON(rawToChar(raw.percent$content))
+
+# Should be a list with 3 elements - 3rd element contains the data and notes
+number.health <- number.content[[3]]$records
+percent.health <- percent.content[[3]]$records
 
 # and have a peek at them
 head(number.health)
@@ -323,6 +383,8 @@ healthODPP  <- rbind(health.format(percent.health), health.format(number.health)
 # remove any NAs and duplicates
 healthODPP <- healthODPP[complete.cases(healthODPP),]
 healthODPP <- unique(healthODPP)
+healthODPP$Value <- as.numeric(healthODPP[,"Value"])
+healthODPP <- data.frame(na.omit(healthODPP))
 
 #review output
 head(healthODPP)
@@ -358,7 +420,9 @@ healthODPP[,"Health Characteristic of Residents"] <- str_replace_all(healthODPP[
                                                                      fixed("Disability"), "Disabilities")
 # only one sector in this dataset, so drop it
 healthODPP <- healthODPP[, !(names(healthODPP) %in% "Sector")]
+# and round values
 healthODPP[,"Value"] <- round(healthODPP[,"Value"])
+healthODPP[,"Value"] <- round(as.numeric(healthODPP[,"Value"]))
 
 # Finally, export the dataset, ready for upload to statistics.gov.scot 
 # my local directory, but you can change this to yours
@@ -384,10 +448,25 @@ write.csv(healthODPP, "health.csv", row.names=FALSE)
 # start with a clean slate
 rm(list=ls())
 
-# read the data from the NHS CKAN website
-number.dem <- read.csv("https://www.opendata.nhs.scot/dataset/75cca0a9-780d-40e0-9e1f-5f4796950794/resource/39d2b480-2990-46a2-bd58-96aac41a032a/download/file11_nos_sex_age_2007_2017.csv")
-percent.dem <- read.csv("https://www.opendata.nhs.scot/dataset/75cca0a9-780d-40e0-9e1f-5f4796950794/resource/f2f376d8-f101-41f5-adb0-3249ed31cce0/download/file9_perc_sex_age_2007_2017.csv")
+# read the data from the NHS CKAN website. API download limit = 32000 rows
+url  <- "https://www.opendata.nhs.scot"
+path.number <- "/api/3/action/datastore_search?resource_id=39d2b480-2990-46a2-bd58-96aac41a032a&limit=32000"
+path.percent <- "/api/3/action/datastore_search?resource_id=f2f376d8-f101-41f5-adb0-3249ed31cce0&limit=32000"
 
+raw.number <- GET(url = url, path = path.number)
+raw.percent <- GET(url = url, path = path.percent)
+
+# code 200 is ok
+raw.number$status_code 
+raw.percent$status_code 
+
+# Translates it into text and parse character string containing JSON file into something R can work with
+number.content <- fromJSON(rawToChar(raw.number$content))
+percent.content <- fromJSON(rawToChar(raw.percent$content))
+
+# Should be a list with 3 elements - 3rd element contains the data and notes
+number.dem <- number.content[[3]]$records
+percent.dem <- percent.content[[3]]$records
 
 # and have a peek at them
 head(number.dem)
@@ -406,7 +485,7 @@ unique(percent.dem[,5])
 dem.format <- function(x,y) {
   pipe <- data.frame(str_sub(x[,"CA2011"])) 
   names(pipe) <- "GeographyCode"      
-  pipe$DateCode <-  x[,"ï..Date"]             
+  pipe$DateCode <-  x[,"Date"]
   pipe$Measurement <- x[,"Unit"]
   pipe$Units <- x[,"Unit"]
   pipe$Age <- x[,"KeyStatistic"]
@@ -419,9 +498,11 @@ dem.format <- function(x,y) {
 # run reformating function on datasets
 demODPP  <- rbind(dem.format(number.dem), dem.format(percent.dem))
 
-# remove any NAs and duplicates
+# remove any missing values, NAs and duplicates
 demODPP <- demODPP[complete.cases(demODPP),]
 demODPP <- unique(demODPP)
+demODPP$Value <- as.numeric(demODPP[,"Value"])
+demODPP <- data.frame(na.omit(demODPP))
 
 #review output
 head(demODPP)
@@ -457,9 +538,8 @@ demODPP[,"Sex"] <- str_replace_all(demODPP[,"Sex"], c("Male and Female" = "All",
                                                       "Percentage of " = "", "Number of " = ""))
 demODPP[,"Sex"] <- str_sub(demODPP[,"Sex"], 1, 4)
 demODPP[,"Sex"] <- str_replace_all(demODPP[,"Sex"], "Fema", "Female")
-
-demODPP[,"Value"] <- round(demODPP[,"Value"])
-
+# round values
+demODPP[,"Value"] <- round(as.numeric(demODPP[,"Value"]))
 
 # Finally, export the dataset, ready for upload to statistics.gov.scot 
 # my local directory, but you can change this to yours
