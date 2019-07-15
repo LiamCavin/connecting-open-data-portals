@@ -18,7 +18,8 @@
 # 5. Demographic Characteristics
 # 6. Admissions, discharges and deaths of residents
 # 7. Average age of residents
-# 8. Type and length of stay
+# 8. Type of stay
+# 9. Length of stay
 #
 #=============================================================================
 #*****************************************************************************
@@ -26,7 +27,6 @@
 
 # next jobs needing attention: create files for upload for datasets covering:
 #
-# - type and length (& average length) of stay LC-WIP
 # - soures of funding and weekly charges
 # 
 
@@ -733,4 +733,240 @@ write.csv(ageODPP, "average_age.csv", row.names=FALSE)
 
 # yaldi
 
+
+
+
+
+
+#===========================================================================
+
+#===========================================================================
+#
+# 8. Type of stay
+#
+#===========================================================================
+
+#===========================================================================
+
+# start with a clean slate
+rm(list=ls())
+
+# read the data from the NHS CKAN website. API download limit = 32000 rows
+url  <- "https://www.opendata.nhs.scot"
+t.path <- "/api/3/action/datastore_search?resource_id=940176d7-b164-4ddc-b839-b0325eafb591&limit=32000"
+
+type.result <- GET(url = url, path = t.path)
+
+# code 200 is ok
+type.result$status_code 
+
+#Translates it into text and parse character string containing JSON file into something R can work with
+type.content <- fromJSON(rawToChar(type.result$content))
+
+# Should be a list with 3 elements - 3rd element contains the data and notes
+typeraw <- type.content[[3]]$records
+
+# and have a peek at them
+head(typeraw)
+dim(typeraw)
+str(typeraw)
+unique(typeraw[,3])
+unique(typeraw[,4])
+unique(typeraw[,6])
+unique(typeraw[,7])
+unique(typeraw[,8])
+
+# create function to reformat data into statistics.gov.scot upload format
+type.format <- function(x,y) {
+  pipe <- data.frame(str_sub(x[,"CA2011"])) 
+  names(pipe) <- "GeographyCode"      
+  pipe$DateCode <-  x[,"Date"] 
+  pipe$Units <- "People"
+  pipe$Measurement <- "Count"
+  pipe$TypeOfStay <- x[,"KeyStatistic"]
+  pipe$ClientGroup <- x[,"MainClientGroup"]
+  pipe$Sector <- x[,"Sector"]
+  pipe$Value <- x[,"Value"]                   
+  return(pipe)
+}
+
+# run reformating function on datasets
+typeODPP  <- type.format(typeraw)
+
+# remove any NAs and duplicates
+typeODPP <- typeODPP[complete.cases(typeODPP),]
+typeODPP <- unique(typeODPP)
+# missing values encoded as " ", this line finds and removes these instances
+typeODPP <- typeODPP[!(typeODPP$Value == " "),]
+
+#review output
+head(typeODPP)
+dim(typeODPP)
+str(typeODPP)
+typeof(typeODPP)
+summary(typeODPP)
+unique(typeODPP[,1])
+unique(typeODPP[,2])
+unique(typeODPP[,3])
+unique(typeODPP[,4])
+unique(typeODPP[,5])
+unique(typeODPP[,6])
+unique(typeODPP[,7])
+unique(typeODPP[,8])
+
+# Edit the headers and text strings 
+typeODPP[,"DateCode"] <- str_sub(typeODPP[,"DateCode"], 1, 4)
+colnames(typeODPP)[colnames(typeODPP)=="TypeOfStay"] <- "Type Of Care Home Stay"
+colnames(typeODPP)[colnames(typeODPP)=="ClientGroup"] <- "Care Home Client Group"
+colnames(typeODPP)[colnames(typeODPP)=="Sector"] <- "Care Home Sector"
+
+typeODPP[,"Type Of Care Home Stay"] <- str_replace_all(typeODPP[,"Type Of Care Home Stay"], 
+                                                "Number of ", "")
+
+
+# Finally, export the dataset, ready for upload to statistics.gov.scot 
+# my local directory, but you can change this to yours
+# setwd("//scotland.gov.uk//dc1//fs3_home//u441625")
+# setwd("C:/Users/augno/Documents/connecting-open-data-portals")
+
+write.csv(typeODPP, "type_of_stay.csv", row.names=FALSE)
+
+# yaldi
+
+
+
+
+
+
+
+#===========================================================================
+
+#===========================================================================
+#
+# 8. Length of stay
+#
+#===========================================================================
+
+#===========================================================================
+
+# start with a clean slate
+rm(list=ls())
+
+# read the data from the NHS CKAN website. API download limit = 32000 rows
+url  <- "https://www.opendata.nhs.scot"
+percent.path <- "/api/3/action/datastore_search?resource_id=55b0199f-1bb6-45ab-af56-20b58e652e9e&limit=32000"
+average.path <- "/api/3/action/datastore_search?resource_id=d78d65cd-697d-4c73-9078-9dd788bf239c&limit=32000"
+
+percent.result <- GET(url = url, path = percent.path)
+average.result <- GET(url = url, path = average.path)
+
+# code 200 is ok
+percent.result$status_code 
+average.result$status_code 
+
+#Translates it into text and parse character string containing JSON file into something R can work with
+percent.content <- fromJSON(rawToChar(percent.result$content))
+average.content <- fromJSON(rawToChar(average.result$content))
+
+# Should be a list with 3 elements - 3rd element contains the data and notes
+percentraw <- percent.content[[3]]$records
+averageraw <- average.content[[3]]$records
+
+# and have a peek at them
+head(percentraw)
+dim(percentraw)
+str(percentraw)
+unique(percentraw[,3])
+unique(percentraw[,4])
+unique(percentraw[,5])
+unique(percentraw[,6])
+unique(percentraw[,7])
+unique(percentraw[,8])
+
+head(averageraw)
+dim(averageraw)
+str(averageraw)
+unique(averageraw[,3])
+unique(averageraw[,4])
+unique(averageraw[,5])
+unique(averageraw[,6])
+unique(averageraw[,7])
+unique(averageraw[,8])
+
+# create function to reformat data into statistics.gov.scot upload format
+percent.format <- function(x,y) {
+  pipe <- data.frame(str_sub(x[,"CA2011"])) 
+  names(pipe) <- "GeographyCode"      
+  pipe$DateCode <-  x[,"Date"] 
+  pipe$Units <- "Percentage Of Residents"
+  pipe$Measurement <- "Percent"
+  pipe$Length <- x[,"KeyStatistic"]
+  pipe$Complete <- x[,"KeyStatistic"]
+  pipe$ClientGroup <- x[,"MainClientGroup"]
+  pipe$Value <- x[,"Value"]                   
+  return(pipe)
+}
+
+average.format <- function(x,y) {
+  pipe <- data.frame(str_sub(x[,"CA2011"])) 
+  names(pipe) <- "GeographyCode"      
+  pipe$DateCode <-  x[,"Date"] 
+  pipe$Units <- "Years"
+  pipe$Measurement <- x[,"KeyStatistic"]
+  pipe$Length <- "All"
+  pipe$Complete <- x[,"KeyStatistic"]
+  pipe$ClientGroup <- x[,"MainClientGroup"]
+  pipe$Value <- x[,"Value"]                   
+  return(pipe)
+}
+
+# run reformating function on datasets
+lengthODPP  <- rbind(percent.format(percentraw), average.format(averageraw))
+ 
+
+# remove any NAs and duplicates
+lengthODPP <- lengthODPP[complete.cases(lengthODPP),]
+lengthODPP <- unique(lengthODPP)
+# missing values encoded as " ", this line finds and removes these instances
+lengthODPP <- lengthODPP[!(lengthODPP$Value == " "),]
+
+#review output
+head(lengthODPP)
+dim(lengthODPP)
+str(lengthODPP)
+typeof(lengthODPP)
+summary(lengthODPP)
+unique(lengthODPP[,1])
+unique(lengthODPP[,2])
+unique(lengthODPP[,3])
+unique(lengthODPP[,4])
+unique(lengthODPP[,5])
+unique(lengthODPP[,6])
+unique(lengthODPP[,7])
+unique(lengthODPP[,8])
+
+
+# Edit the headers and text strings 
+lengthODPP[,"DateCode"] <- str_sub(lengthODPP[,"DateCode"], 1, 4)
+lengthODPP[,"Measurement"] <- gsub("Mean.*", "Mean", lengthODPP[,"Measurement"])
+lengthODPP[,"Measurement"] <- gsub("Median.*", "Median", lengthODPP[,"Measurement"])
+colnames(lengthODPP)[colnames(lengthODPP)=="Length"] <- "Length Of Care Home Stay"
+colnames(lengthODPP)[colnames(lengthODPP)=="ClientGroup"] <- "Care Home Client Group"
+colnames(lengthODPP)[colnames(lengthODPP)=="Complete"] <- "Care Home Stay Complete"
+
+lengthODPP[,"Length Of Care Home Stay"] <- str_replace_all(lengthODPP[,"Length Of Care Home Stay"], 
+                                                       c("Complete Length of " = "", "Incomplete Length of " = ""))
+lengthODPP[,"Care Home Stay Complete"] <- gsub(".*Complete.*", "Complete", lengthODPP[,"Care Home Stay Complete"])
+lengthODPP[,"Care Home Stay Complete"] <- gsub(".*Incomplete.*", "Incomplete", lengthODPP[,"Care Home Stay Complete"])
+lengthODPP[,"Value"] <- round(as.numeric(lengthODPP[,"Value"]),1)
+
+
+# Finally, export the dataset, ready for upload to statistics.gov.scot 
+# my local directory, but you can change this to yours
+# setwd("//scotland.gov.uk//dc1//fs3_home//u441625")
+# setwd("C:/Users/augno/Documents/connecting-open-data-portals")
+
+write.csv(lengthODPP, "length_of_stay.csv", row.names=FALSE)
+
+# yaldi
 
