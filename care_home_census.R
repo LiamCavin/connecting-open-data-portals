@@ -24,7 +24,7 @@
 
 # next jobs needing attention: create files for upload for datasets covering:
 #
-# - admissions, discharges and deaths of residents LC-WIP
+# - updating sections 1-5 with JSON API rather than read.csv
 # - average age 
 # - type and length (& average length) of stay
 # - soures of funding and weekly charges
@@ -529,6 +529,8 @@ addODPP  <- ADD.format(ADDraw)
 # remove any NAs and duplicates
 addODPP <- addODPP[complete.cases(addODPP),]
 addODPP <- unique(addODPP)
+# missing values encoded as " ", this line finds and removes these instances
+addODPP <- addODPP[!(addODPP$Value == " "),]
 
 #review output
 head(addODPP)
@@ -554,7 +556,7 @@ addODPP[,"Measurement"] <- str_replace_all(addODPP[,"Measurement"], fixed("Numbe
 # setwd("//scotland.gov.uk//dc1//fs3_home//u441625")
 # setwd("C:/Users/augno/Documents/connecting-open-data-portals")
 
-write.csv(addODPP, "Admissions_dishcharges_deaths.csv", row.names=FALSE)
+write.csv(addODPP, "Admissions_discharges_deaths.csv", row.names=FALSE)
 
 # yaldi
 
