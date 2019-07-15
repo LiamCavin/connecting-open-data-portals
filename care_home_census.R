@@ -17,6 +17,8 @@
 # 4. Health Characteristics
 # 5. Demographic Characteristics
 # 6. Admissions, discharges and deaths of residents
+# 7. Average age of residents
+# 8. Type and length of stay
 #
 #=============================================================================
 #*****************************************************************************
@@ -24,8 +26,7 @@
 
 # next jobs needing attention: create files for upload for datasets covering:
 #
-# - average age 
-# - type and length (& average length) of stay
+# - type and length (& average length) of stay LC-WIP
 # - soures of funding and weekly charges
 # 
 
@@ -639,4 +640,97 @@ addODPP[,"Measurement"] <- str_replace_all(addODPP[,"Measurement"], fixed("Numbe
 write.csv(addODPP, "Admissions_discharges_deaths.csv", row.names=FALSE)
 
 # yaldi
+
+
+
+
+
+#===========================================================================
+
+#===========================================================================
+#
+# 7. Average age of residents
+#
+#===========================================================================
+
+#===========================================================================
+
+# start with a clean slate
+rm(list=ls())
+
+# read the data from the NHS CKAN website. API download limit = 32000 rows
+url  <- "https://www.opendata.nhs.scot"
+path <- "/api/3/action/datastore_search?resource_id=139f61d8-a87d-419d-b7af-31f555a60c89&limit=32000"
+raw.result <- GET(url = url, path = path)
+
+# code 200 is ok
+raw.result$status_code 
+
+#Translates it into text and parse character string containing JSON file into something R can work with
+this.content <- fromJSON(rawToChar(raw.result$content))
+
+# Should be a list with 3 elements - 3rd element contains the data and notes
+ageraw <- this.content[[3]]$records
+
+# and have a peek at them
+head(ageraw)
+dim(ageraw)
+str(ageraw)
+unique(ageraw[,3])
+unique(ageraw[,4])
+unique(ageraw[,6])
+unique(ageraw[,7])
+unique(ageraw[,8])
+
+# create function to reformat data into statistics.gov.scot upload format
+age.format <- function(x,y) {
+  pipe <- data.frame(str_sub(x[,"CA2011"])) 
+  names(pipe) <- "GeographyCode"      
+  pipe$DateCode <-  x[,"Date"] 
+  pipe$Units <- "Years"
+  pipe$Measurement <- x[,"KeyStatistic"]
+  pipe$AgeOfResidents <- x[,"KeyStatistic"]
+  pipe$Value <- x[,"Value"]                   
+  return(pipe)
+}
+
+# run reformating function on datasets
+ageODPP  <- age.format(ageraw)
+
+# remove any NAs and duplicates
+ageODPP <- ageODPP[complete.cases(ageODPP),]
+ageODPP <- unique(ageODPP)
+# missing values encoded as " ", this line finds and removes these instances
+ageODPP <- ageODPP[!(ageODPP$Value == " "),]
+
+#review output
+head(ageODPP)
+dim(ageODPP)
+str(ageODPP)
+typeof(ageODPP)
+summary(ageODPP)
+unique(ageODPP[,1])
+unique(ageODPP[,2])
+unique(ageODPP[,3])
+unique(ageODPP[,4])
+unique(ageODPP[,5])
+unique(ageODPP[,6])
+
+# Edit the headers and text strings 
+ageODPP[,"DateCode"] <- str_sub(ageODPP[,"DateCode"], 1, 4)
+colnames(ageODPP)[colnames(ageODPP)=="AgeOfResidents"] <- "Age Of Residents"
+ageODPP[,"Age Of Residents"] <- str_replace_all(ageODPP[,"Age Of Residents"], 
+                                                c("Mean " = "", "Median " = ""))
+ageODPP[,"Measurement"] <- gsub("Mean.*", "Mean", ageODPP[,"Measurement"])
+ageODPP[,"Measurement"] <- gsub("Median.*", "Median", ageODPP[,"Measurement"])
+
+# Finally, export the dataset, ready for upload to statistics.gov.scot 
+# my local directory, but you can change this to yours
+# setwd("//scotland.gov.uk//dc1//fs3_home//u441625")
+# setwd("C:/Users/augno/Documents/connecting-open-data-portals")
+
+write.csv(ageODPP, "average_age.csv", row.names=FALSE)
+
+# yaldi
+
 
