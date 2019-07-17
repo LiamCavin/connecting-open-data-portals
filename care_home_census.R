@@ -1054,18 +1054,57 @@ funding.format <- function(x,y) {
 # run reformating function on datasets
 financeODPP  <- rbind(charges.format(charges), funding.format(funding))
 
+# remove any NAs and duplicates
+financeODPP <- financeODPP[complete.cases(financeODPP),]
+financeODPP <- unique(financeODPP)
+# missing values encoded as " ", this line finds and removes these instances
+financeODPP <- financeODPP[!(financeODPP$Value == " "),]
+
+
 #review output
 head(financeODPP)
 dim(financeODPP)
 str(financeODPP)
 typeof(financeODPP)
 summary(financeODPP)
-unique(lengthODPP[,1])
-unique(lengthODPP[,2])
-unique(lengthODPP[,3])
-unique(lengthODPP[,4])
-unique(lengthODPP[,5])
-unique(lengthODPP[,6])
-unique(lengthODPP[,7])
-unique(lengthODPP[,8])
+unique(financeODPP[,1])
+unique(financeODPP[,2])
+unique(financeODPP[,3])
+unique(financeODPP[,4])
+unique(financeODPP[,5])
+unique(financeODPP[,6])
+
+
+# Edit the headers and text strings 
+financeODPP[,"DateCode"] <- str_sub(financeODPP[,"DateCode"], 1, 4)
+
+colnames(financeODPP)[colnames(financeODPP)=="AverageWeeklyCharge"] <- "Average Weekly Charge Category"
+colnames(financeODPP)[colnames(financeODPP)=="SourceFunding"] <- "Source of Funding"
+
+financeODPP[,"Average Weekly Charge Category"] <- str_replace_all(financeODPP[,"Average Weekly Charge Category"],
+                                                                 c("Average Gross Weekly Charge for All Self Funders" = "All",
+                                                                   "Average Gross Weekly Charge for Self Funders " = "",
+                                                                   "Average Gross Weekly Charge for All Funding " = "",
+                                                                   "Average Gross Weekly Charge for Publicly Funded " = "",
+                                                                   "Percentage of Long Stay Residents Mainly Or Wholly Funded by Local Authority or NHS" ="All",
+                                                                   "Percentage of Long Stay Residents Mainly Or Wholly Self Funded" = "All"
+                                                                   ))
+
+financeODPP[,"Source of Funding"] <- str_replace_all(financeODPP[,"Source of Funding"],
+                                                                  c("Average Gross Weekly Charge for All Self Funders" = "Self Funded",
+                                                                    "Average Gross Weekly Charge for Self Funders With Nursing Care" = "Self Funded",
+                                                                    "Average Gross Weekly Charge for Self Funders Without Nursing Care" = "Self Funded",
+                                                                    "Average Gross Weekly Charge for All Funding With Nursing Care" = "All",
+                                                                    "Average Gross Weekly Charge for All Funding Without Nursing Care" = "All",
+                                                                    "Average Gross Weekly Charge for Publicly Funded With Nursing Care" = "Publicly Funded",
+                                                                    "Average Gross Weekly Charge for Publicly Funded Without Nursing Care" = "Publicly Funded",
+                                                                    "Percentage of Long Stay Residents Mainly Or Wholly Funded by Local Authority or NHS" ="Publicly Funded",
+                                                                    "Percentage of Long Stay Residents Mainly Or Wholly Self Funded" = "Self Funded"
+                                                                  ))
+
+# Finally, export the dataset, ready for upload to statistics.gov.scot 
+setwd("C:/Users/dsap01/connecting-open-data-portals/")
+write.csv(financeODPP, "financeODPP.csv", row.names = F)
+
+
 
