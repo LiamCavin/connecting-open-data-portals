@@ -1025,3 +1025,47 @@ str(funding)
 unique(funding[,3])
 unique(funding[,5])
 unique(funding[,6])
+
+# create function to reformat data into statistics.gov.scot upload format
+charges.format <- function(x,y) {
+  pipe <- data.frame(str_sub(x[,"CA2011"])) 
+  names(pipe) <- "GeographyCode"      
+  pipe$DateCode <-  x[,"Date"] 
+  pipe$Units <- "GBP (pounds) per Resident Aged 65 or Over"
+  pipe$Measurement <- "Count"
+  pipe$AverageWeeklyCharge <- x[,"KeyStatistic"]
+  pipe$SourceFunding <- x[,"KeyStatistic"]
+  pipe$Value <- x[,"Value"]                   
+  return(pipe)
+}
+
+funding.format <- function(x,y) {
+  pipe <- data.frame(str_sub(x[,"CA2011"])) 
+  names(pipe) <- "GeographyCode"      
+  pipe$DateCode <-  x[,"Date"] 
+  pipe$Units <- "Long Stay Residents Aged 65 and Older"
+  pipe$Measurement <- "Percent"
+  pipe$AverageWeeklyCharge <- x[,"KeyStatistic"]
+  pipe$SourceFunding <- x[,"KeyStatistic"]
+  pipe$Value <- x[,"Value"]                   
+  return(pipe)
+}
+
+# run reformating function on datasets
+financeODPP  <- rbind(charges.format(charges), funding.format(funding))
+
+#review output
+head(financeODPP)
+dim(financeODPP)
+str(financeODPP)
+typeof(financeODPP)
+summary(financeODPP)
+unique(lengthODPP[,1])
+unique(lengthODPP[,2])
+unique(lengthODPP[,3])
+unique(lengthODPP[,4])
+unique(lengthODPP[,5])
+unique(lengthODPP[,6])
+unique(lengthODPP[,7])
+unique(lengthODPP[,8])
+
