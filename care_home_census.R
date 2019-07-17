@@ -20,6 +20,7 @@
 # 7. Average age of residents
 # 8. Type of stay
 # 9. Length of stay
+# 10. Sources of funding and weekly charges
 #
 #=============================================================================
 #*****************************************************************************
@@ -976,3 +977,51 @@ write.csv(lengthODPP, "length_of_stay.csv", row.names=FALSE)
 
 # yaldi
 
+#===========================================================================
+
+#===========================================================================
+#
+# 10. Sources of Funding and Weekly Charges
+#
+#===========================================================================
+
+#===========================================================================
+
+# start with a clean slate
+rm(list=ls())
+
+# read the data from the NHS CKAN website. API download limit = 32000 rows
+url  <- "https://www.opendata.nhs.scot"
+path.charges <- "/api/3/action/datastore_search?resource_id=4ee7dc84-ca65-455c-9e76-b614091f389f&limit=32000"
+path.funding <- "/api/3/action/datastore_search?resource_id=53f1af96-9a94-4ac0-a6b1-aeeea6ab111d&limit=32000"
+
+raw.charges <- GET(url = url, path = path.charges)
+raw.funding <- GET(url = url, path = path.funding)
+
+# code 200 is ok
+raw.charges$status_code 
+raw.funding$status_code
+
+# Translates it into text and parse character string containing JSON file into something R can work with
+charges.content <- fromJSON(rawToChar(raw.charges$content))
+funding.content <- fromJSON(rawToChar(raw.funding$content))
+
+# Should be a list with 3 elements - 3rd element contains the data and notes
+charges <- charges.content[[3]]$records
+funding <- funding.content[[3]]$records
+
+# and have a peek at it
+head(charges)
+dim(charges)
+str(charges)
+unique(charges[,3])
+unique(charges[,5])
+unique(charges[,6])
+unique(charges[,7])
+
+head(funding)
+dim(funding)
+str(funding)
+unique(funding[,3])
+unique(funding[,5])
+unique(funding[,6])
