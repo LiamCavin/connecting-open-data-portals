@@ -1035,7 +1035,7 @@ charges.format <- function(x,y) {
   pipe <- data.frame(str_sub(x[,"CA2011"])) 
   names(pipe) <- "GeographyCode"      
   pipe$DateCode <-  x[,"Date"] 
-  pipe$Units <- "GBP (pounds) per Resident Aged 65 or Over"
+  pipe$Units <- "Pounds (GBP)"
   pipe$Measurement <- "Count"
   pipe$AverageWeeklyCharge <- x[,"KeyStatistic"]
   pipe$SourceFunding <- x[,"KeyStatistic"]
@@ -1047,7 +1047,7 @@ funding.format <- function(x,y) {
   pipe <- data.frame(str_sub(x[,"CA2011"])) 
   names(pipe) <- "GeographyCode"      
   pipe$DateCode <-  x[,"Date"] 
-  pipe$Units <- "Long Stay Residents Aged 65 and Older"
+  pipe$Units <- "Long Stay Residents"
   pipe$Measurement <- "Percent"
   pipe$AverageWeeklyCharge <- x[,"KeyStatistic"]
   pipe$SourceFunding <- x[,"KeyStatistic"]
@@ -1082,10 +1082,10 @@ unique(financeODPP[,6])
 # Edit the headers and text strings 
 financeODPP[,"DateCode"] <- str_sub(financeODPP[,"DateCode"], 1, 4)
 
-colnames(financeODPP)[colnames(financeODPP)=="AverageWeeklyCharge"] <- "Average Weekly Charge Category"
+colnames(financeODPP)[colnames(financeODPP)=="AverageWeeklyCharge"] <- "Gross Average Weekly Charge Category"
 colnames(financeODPP)[colnames(financeODPP)=="SourceFunding"] <- "Source of Funding"
 
-financeODPP[,"Average Weekly Charge Category"] <- str_replace_all(financeODPP[,"Average Weekly Charge Category"],
+financeODPP[,"Gross Average Weekly Charge Category"] <- str_replace_all(financeODPP[,"Gross Average Weekly Charge Category"],
                                                                  c("Average Gross Weekly Charge for All Self Funders" = "All",
                                                                    "Average Gross Weekly Charge for Self Funders " = "",
                                                                    "Average Gross Weekly Charge for All Funding " = "",
@@ -1112,3 +1112,4 @@ write.csv(financeODPP, "financeODPP.csv", row.names = F)
 
 # yaldi
 
+# END
