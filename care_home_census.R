@@ -1,4 +1,8 @@
-#=============================================================================
+#=============================================================================#
+#
+# 0. Information -------------------------------------------------------------
+#
+#=============================================================================#
 #
 # Script for formatting Care Home Statistics for Council Areas
 # into statistics.gov.scot upload format (tidy data).
@@ -20,10 +24,11 @@
 # 7. Average age of residents
 # 8. Type of stay
 # 9. Length of stay
+# 10. Sources of funding and weekly charges
 #
-#=============================================================================
-#*****************************************************************************
-#=============================================================================
+#=============================================================================#
+#*****************************************************************************#
+#=============================================================================#
 
 # next jobs needing attention: create files for upload for datasets covering:
 #
@@ -39,15 +44,15 @@ library(httr) #Version 1.4.0
 library(jsonlite) #Version 1.6
 
 
-#===========================================================================
+#===========================================================================#
 
-#===========================================================================
+#===========================================================================#
 #
-# 1. Number and rate of care home places 
+# 1. Number and rate of care home places -----------------------------------
 #
-#===========================================================================
+#===========================================================================#
 
-#===========================================================================
+#===========================================================================#
 
 
 # start with a clean slate
@@ -139,15 +144,15 @@ write.csv(placesODPP, "care_home_places.csv", row.names=FALSE)
 # yaldi
 
 
-#===========================================================================
+#===========================================================================#
 
-#===========================================================================
+#===========================================================================#
 #
-# 2. Number care homes
+# 2. Number care homes -----------------------------------------------------
 #
-#===========================================================================
+#===========================================================================#
 
-#===========================================================================
+#===========================================================================#
 
 # start with a clean slate
 rm(list=ls())
@@ -229,15 +234,15 @@ write.csv(homesODPP, "number_care_homes.csv", row.names=FALSE)
 
 
 
-#===========================================================================
+#===========================================================================#
 
-#===========================================================================
+#===========================================================================#
 #
-# 3. Occupancy rate in care homes
+# 3. Occupancy rate in care homes ------------------------------------------
 #
-#===========================================================================
+#===========================================================================#
 
-#===========================================================================
+#===========================================================================#
 
 # start with a clean slate
 rm(list=ls())
@@ -317,15 +322,15 @@ write.csv(occupancyODPP, "occupancy_rate.csv", row.names=FALSE)
 
 
 
-#===========================================================================
+#===========================================================================#
 
-#===========================================================================
+#===========================================================================#
 #
-# 4. Health Characteristics of Care Home Residents
+# 4. Health Characteristics of Care Home Residents -------------------------
 #
-#===========================================================================
+#===========================================================================#
 
-#===========================================================================
+#===========================================================================#
 
 # start with a clean slate
 rm(list=ls())
@@ -436,15 +441,15 @@ write.csv(healthODPP, "health.csv", row.names=FALSE)
 
 
 
-#===========================================================================
+#===========================================================================#
 
-#===========================================================================
+#===========================================================================#
 #
-# 5. Demographic Characteristics of Care Home Residents
+# 5. Demographic Characteristics of Care Home Residents --------------------
 #
-#===========================================================================
+#===========================================================================#
 
-#===========================================================================
+#===========================================================================#
 
 # start with a clean slate
 rm(list=ls())
@@ -554,15 +559,15 @@ write.csv(demODPP, "demography.csv", row.names=FALSE)
 
 
 
-#===========================================================================
+#===========================================================================#
 
-#===========================================================================
+#===========================================================================#
 #
-# 6. Admission, Discharge and Death of Care Home Residents
+# 6. Admission, Discharge and Death of Care Home Residents -----------------
 #
-#===========================================================================
+#===========================================================================#
 
-#===========================================================================
+#===========================================================================#
 
 # start with a clean slate
 rm(list=ls())
@@ -646,15 +651,15 @@ write.csv(addODPP, "Admissions_discharges_deaths.csv", row.names=FALSE)
 
 
 
-#===========================================================================
+#===========================================================================#
 
-#===========================================================================
+#===========================================================================#
 #
-# 7. Average age of residents
+# 7. Average age of residents ----------------------------------------------
 #
-#===========================================================================
+#===========================================================================#
 
-#===========================================================================
+#===========================================================================#
 
 # start with a clean slate
 rm(list=ls())
@@ -744,15 +749,15 @@ write.csv(ageODPP, "average_age.csv", row.names=FALSE)
 
 
 
-#===========================================================================
+#===========================================================================#
 
-#===========================================================================
+#===========================================================================#
 #
-# 8. Type of stay
+# 8. Type of stay ----------------------------------------------------------
 #
-#===========================================================================
+#===========================================================================#
 
-#===========================================================================
+#===========================================================================#
 
 # start with a clean slate
 rm(list=ls())
@@ -845,15 +850,15 @@ write.csv(typeODPP, "type_of_stay.csv", row.names=FALSE)
 
 
 
-#===========================================================================
+#===========================================================================#
 
-#===========================================================================
+#===========================================================================#
 #
-# 9. Length of stay
+# 9. Length of stay ---------------------------------------------------------
 #
-#===========================================================================
+#===========================================================================#
 
-#===========================================================================
+#===========================================================================#
 
 # start with a clean slate
 rm(list=ls())
@@ -976,3 +981,135 @@ write.csv(lengthODPP, "length_of_stay.csv", row.names=FALSE)
 
 # yaldi
 
+#===========================================================================#
+#
+#===========================================================================#
+#
+# 10. Sources of Funding and Weekly Charges ================================
+# `
+#===========================================================================#
+#
+#===========================================================================#
+
+# start with a clean slate
+rm(list=ls())
+
+# read the data from the NHS CKAN website. API download limit = 32000 rows
+url  <- "https://www.opendata.nhs.scot"
+path.charges <- "/api/3/action/datastore_search?resource_id=4ee7dc84-ca65-455c-9e76-b614091f389f&limit=32000"
+path.funding <- "/api/3/action/datastore_search?resource_id=53f1af96-9a94-4ac0-a6b1-aeeea6ab111d&limit=32000"
+
+raw.charges <- GET(url = url, path = path.charges)
+raw.funding <- GET(url = url, path = path.funding)
+
+# code 200 is ok
+raw.charges$status_code 
+raw.funding$status_code
+
+# Translates it into text and parse character string containing JSON file into something R can work with
+charges.content <- fromJSON(rawToChar(raw.charges$content))
+funding.content <- fromJSON(rawToChar(raw.funding$content))
+
+# Should be a list with 3 elements - 3rd element contains the data and notes
+charges <- charges.content[[3]]$records
+funding <- funding.content[[3]]$records
+
+# and have a peek at it
+head(charges)
+dim(charges)
+str(charges)
+unique(charges[,3])
+unique(charges[,5])
+unique(charges[,6])
+unique(charges[,7])
+
+head(funding)
+dim(funding)
+str(funding)
+unique(funding[,3])
+unique(funding[,5])
+unique(funding[,6])
+
+# create function to reformat data into statistics.gov.scot upload format
+charges.format <- function(x,y) {
+  pipe <- data.frame(str_sub(x[,"CA2011"])) 
+  names(pipe) <- "GeographyCode"      
+  pipe$DateCode <-  x[,"Date"] 
+  pipe$Units <- "Pounds (GBP)"
+  pipe$Measurement <- "Count"
+  pipe$AverageWeeklyCharge <- x[,"KeyStatistic"]
+  pipe$SourceFunding <- x[,"KeyStatistic"]
+  pipe$Value <- x[,"Value"]                   
+  return(pipe)
+}
+
+funding.format <- function(x,y) {
+  pipe <- data.frame(str_sub(x[,"CA2011"])) 
+  names(pipe) <- "GeographyCode"      
+  pipe$DateCode <-  x[,"Date"] 
+  pipe$Units <- "Long Stay Residents"
+  pipe$Measurement <- "Percent"
+  pipe$AverageWeeklyCharge <- x[,"KeyStatistic"]
+  pipe$SourceFunding <- x[,"KeyStatistic"]
+  pipe$Value <- x[,"Value"]                   
+  return(pipe)
+}
+
+# run reformating function on datasets
+financeODPP  <- rbind(charges.format(charges), funding.format(funding))
+
+# remove any NAs and duplicates
+financeODPP <- financeODPP[complete.cases(financeODPP),]
+financeODPP <- unique(financeODPP)
+# missing values encoded as " ", this line finds and removes these instances
+financeODPP <- financeODPP[!(financeODPP$Value == " "),]
+
+
+#review output
+head(financeODPP)
+dim(financeODPP)
+str(financeODPP)
+typeof(financeODPP)
+summary(financeODPP)
+unique(financeODPP[,1])
+unique(financeODPP[,2])
+unique(financeODPP[,3])
+unique(financeODPP[,4])
+unique(financeODPP[,5])
+unique(financeODPP[,6])
+
+
+# Edit the headers and text strings 
+financeODPP[,"DateCode"] <- str_sub(financeODPP[,"DateCode"], 1, 4)
+
+colnames(financeODPP)[colnames(financeODPP)=="AverageWeeklyCharge"] <- "Gross Average Weekly Charge Category"
+colnames(financeODPP)[colnames(financeODPP)=="SourceFunding"] <- "Source of Funding"
+
+financeODPP[,"Gross Average Weekly Charge Category"] <- str_replace_all(financeODPP[,"Gross Average Weekly Charge Category"],
+                                                                 c("Average Gross Weekly Charge for All Self Funders" = "All",
+                                                                   "Average Gross Weekly Charge for Self Funders " = "",
+                                                                   "Average Gross Weekly Charge for All Funding " = "",
+                                                                   "Average Gross Weekly Charge for Publicly Funded " = "",
+                                                                   "Percentage of Long Stay Residents Mainly Or Wholly Funded by Local Authority or NHS" ="All",
+                                                                   "Percentage of Long Stay Residents Mainly Or Wholly Self Funded" = "All"
+                                                                   ))
+
+financeODPP[,"Source of Funding"] <- str_replace_all(financeODPP[,"Source of Funding"],
+                                                                  c("Average Gross Weekly Charge for All Self Funders" = "Self Funded",
+                                                                    "Average Gross Weekly Charge for Self Funders With Nursing Care" = "Self Funded",
+                                                                    "Average Gross Weekly Charge for Self Funders Without Nursing Care" = "Self Funded",
+                                                                    "Average Gross Weekly Charge for All Funding With Nursing Care" = "All",
+                                                                    "Average Gross Weekly Charge for All Funding Without Nursing Care" = "All",
+                                                                    "Average Gross Weekly Charge for Publicly Funded With Nursing Care" = "Publicly Funded",
+                                                                    "Average Gross Weekly Charge for Publicly Funded Without Nursing Care" = "Publicly Funded",
+                                                                    "Percentage of Long Stay Residents Mainly Or Wholly Funded by Local Authority or NHS" ="Publicly Funded",
+                                                                    "Percentage of Long Stay Residents Mainly Or Wholly Self Funded" = "Self Funded"
+                                                                  ))
+
+# Finally, export the dataset, ready for upload to statistics.gov.scot 
+setwd("C:/Users/dsap01/connecting-open-data-portals/")
+write.csv(financeODPP, "financeODPP.csv", row.names = F)
+
+# yaldi
+
+# END
