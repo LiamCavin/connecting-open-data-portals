@@ -126,13 +126,12 @@ unique(placesODPP[,6])
 unique(placesODPP[,7])
 
 # Edit the headers and text strings 
-colnames(placesODPP)[colnames(placesODPP)=="ClientGroup"] <- "Care Home Client Group"
+colnames(placesODPP)[colnames(placesODPP)=="ClientGroup"] <- "Main Client Group in Care Home"
 colnames(placesODPP)[colnames(placesODPP)=="Sector"] <- "Care Home Sector"
 placesODPP[,"DateCode"] <- str_sub(placesODPP[,"DateCode"], 1, 4)
 placesODPP[,"Measurement"] <- str_replace_all(placesODPP[,"Measurement"], fixed("Number"), "Count")
 placesODPP[,"Measurement"] <- str_replace_all(placesODPP[,"Measurement"], fixed("Rate"), "Ratio")
-placesODPP[,"Units"] <- str_replace_all(placesODPP[,"Units"], fixed("Number of Registered Places for Older People per 1000 population"), 
-                                                        "Number of Registered Places per 1000 population")
+placesODPP[,"Units"] <- str_replace_all(placesODPP[,"Units"], fixed("Number of "), "")
 
 # Finally, export the dataset, ready for upload to statistics.gov.scot 
 # my local directory, but you can change this to yours
@@ -215,13 +214,11 @@ unique(homesODPP[,6])
 unique(homesODPP[,7])
 
 # Edit the headers and text strings 
-colnames(homesODPP)[colnames(homesODPP)=="ClientGroup"] <- "Care Home Client Group"
+colnames(homesODPP)[colnames(homesODPP)=="ClientGroup"] <- "Main Client Group in Care Home"
 colnames(homesODPP)[colnames(homesODPP)=="Sector"] <- "Care Home Sector"
 homesODPP[,"DateCode"] <- str_sub(homesODPP[,"DateCode"], 1, 4)
 homesODPP[,"Measurement"] <- str_replace_all(homesODPP[,"Measurement"], fixed("Number"), "Count")
-homesODPP[,"Measurement"] <- str_replace_all(homesODPP[,"Measurement"], fixed("Rate"), "Ratio")
-homesODPP[,"Units"] <- str_replace_all(homesODPP[,"Units"], fixed("Number of Registered Places for Older People per 1000 population"), 
-                                  "Number of Registered Places per 1000 population")
+homesODPP[,"Units"] <- str_replace_all(homesODPP[,"Units"], fixed("Number of "), "")
 
 # Finally, export the dataset, ready for upload to statistics.gov.scot 
 # my local directory, but you can change this to yours
@@ -305,7 +302,7 @@ unique(occupancyODPP[,6])
 unique(occupancyODPP[,7])
 
 # Edit the headers and text strings 
-colnames(occupancyODPP)[colnames(occupancyODPP)=="ClientGroup"] <- "Care Home Client Group"
+colnames(occupancyODPP)[colnames(occupancyODPP)=="ClientGroup"] <- "Main Client Group in Care Home"
 colnames(occupancyODPP)[colnames(occupancyODPP)=="Sector"] <- "Care Home Sector"
 occupancyODPP[,"DateCode"] <- str_sub(occupancyODPP[,"DateCode"], 1, 4)
 occupancyODPP[,"Measurement"] <- str_replace_all(occupancyODPP[,"Measurement"], fixed("Percentage"), "Percent")
@@ -407,14 +404,14 @@ unique(healthODPP[,6])
 unique(healthODPP[,7])
 
 # Edit the headers and text strings 
-colnames(healthODPP)[colnames(healthODPP)=="ClientGroup"] <- "Care Home Client Group"
+colnames(healthODPP)[colnames(healthODPP)=="ClientGroup"] <- "Main Client Group in Care Home"
 colnames(healthODPP)[colnames(healthODPP)=="HealthChar"] <- "Health Characteristic of Residents"
 
 healthODPP[,"DateCode"] <- str_sub(healthODPP[,"DateCode"], 1, 4)
 healthODPP[,"Measurement"] <- str_replace_all(healthODPP[,"Measurement"], fixed("Percentage"), "Percent")
 healthODPP[,"Measurement"] <- str_replace_all(healthODPP[,"Measurement"], fixed("Number"), "Count")
 healthODPP[,"Units"] <- str_replace_all(healthODPP[,"Units"], fixed("Percentage"), "Percentage of Long Stay Residents")
-healthODPP[,"Units"] <- str_replace_all(healthODPP[,"Units"], fixed("Number"), "People")
+healthODPP[,"Units"] <- str_replace_all(healthODPP[,"Units"], fixed("Number"), "Long Stay Residents")
 
 healthODPP[,"Health Characteristic of Residents"] <- str_replace_all(healthODPP[,"Health Characteristic of Residents"], 
                                                                      fixed("Percentage of Long Stay Residents "), "")
@@ -526,7 +523,7 @@ unique(demODPP[,7])
 unique(demODPP[,8])
 
 # Edit the headers and text strings 
-colnames(demODPP)[colnames(demODPP)=="ClientGroup"] <- "Care Home Client Group"
+colnames(demODPP)[colnames(demODPP)=="ClientGroup"] <- "Main Client Group in Care Home"
 
 demODPP[,"DateCode"] <- str_sub(demODPP[,"DateCode"], 1, 4)
 
@@ -534,7 +531,7 @@ demODPP[,"Measurement"] <- str_replace_all(demODPP[,"Measurement"], fixed("Perce
 demODPP[,"Measurement"] <- str_replace_all(demODPP[,"Measurement"], fixed("Number"), "Count")
 
 demODPP[,"Units"] <- str_replace_all(demODPP[,"Units"], fixed("Percentage"), "Percentage of Long Stay Residents")
-demODPP[,"Units"] <- str_replace_all(demODPP[,"Units"], fixed("Number"), "People")
+demODPP[,"Units"] <- str_replace_all(demODPP[,"Units"], fixed("Number"), "Long Stay Residents")
 
 demODPP[,"Age"] <-  str_replace_all(demODPP[,"Age"], c("Number of " = "", "Percentage of " = "", "Long Stay Residents " = "",
                                      "Aged " = "", "Male " = "", "and Female " = "", "Female " = "", "Long Stay Residents " = "",
@@ -634,7 +631,7 @@ unique(addODPP[,6])
 
 # Edit the headers and text strings 
 colnames(addODPP)[colnames(addODPP)=="ADD"] <- "Admissions, Discharges and Deaths"
-colnames(addODPP)[colnames(addODPP)=="ClientGroup"] <- "Care Home Client Group"
+colnames(addODPP)[colnames(addODPP)=="ClientGroup"] <- "Main Client Group in Care Home"
 addODPP[,"Admissions, Discharges and Deaths"] <- str_replace_all(addODPP[,"Admissions, Discharges and Deaths"], fixed("Number of "), "")
 addODPP[,"Measurement"] <- str_replace_all(addODPP[,"Measurement"], fixed("Number"), "Count")
 
@@ -729,7 +726,7 @@ unique(ageODPP[,7])
 # Edit the headers and text strings 
 ageODPP[,"DateCode"] <- str_sub(ageODPP[,"DateCode"], 1, 4)
 colnames(ageODPP)[colnames(ageODPP)=="AgeOfResidents"] <- "Age Of Residents"
-colnames(ageODPP)[colnames(ageODPP)=="ClientGroup"] <- "Care Home Client Group"
+colnames(ageODPP)[colnames(ageODPP)=="ClientGroup"] <- "Main Client Group in Care Home"
 ageODPP[,"Age Of Residents"] <- str_replace_all(ageODPP[,"Age Of Residents"], 
                                                 c("Mean " = "", "Median " = ""))
 ageODPP[,"Measurement"] <- gsub("Mean.*", "Mean", ageODPP[,"Measurement"])
@@ -828,7 +825,7 @@ unique(typeODPP[,8])
 # Edit the headers and text strings 
 typeODPP[,"DateCode"] <- str_sub(typeODPP[,"DateCode"], 1, 4)
 colnames(typeODPP)[colnames(typeODPP)=="TypeOfStay"] <- "Type Of Care Home Stay"
-colnames(typeODPP)[colnames(typeODPP)=="ClientGroup"] <- "Care Home Client Group"
+colnames(typeODPP)[colnames(typeODPP)=="ClientGroup"] <- "Main Client Group in Care Home"
 colnames(typeODPP)[colnames(typeODPP)=="Sector"] <- "Care Home Sector"
 
 typeODPP[,"Type Of Care Home Stay"] <- str_replace_all(typeODPP[,"Type Of Care Home Stay"], 
@@ -909,7 +906,7 @@ percent.format <- function(x,y) {
   pipe <- data.frame(str_sub(x[,"CA2011"])) 
   names(pipe) <- "GeographyCode"      
   pipe$DateCode <-  x[,"Date"] 
-  pipe$Units <- "Percentage Of Residents"
+  pipe$Units <- "Percentage Of Long Stay Residents"
   pipe$Measurement <- "Percent"
   pipe$Length <- x[,"KeyStatistic"]
   pipe$Complete <- x[,"KeyStatistic"]
@@ -924,7 +921,7 @@ average.format <- function(x,y) {
   pipe$DateCode <-  x[,"Date"] 
   pipe$Units <- "Years"
   pipe$Measurement <- x[,"KeyStatistic"]
-  pipe$Length <- "All"
+  pipe$Length <- "All Lengths of Stay"
   pipe$Complete <- x[,"KeyStatistic"]
   pipe$ClientGroup <- x[,"MainClientGroup"]
   pipe$Value <- x[,"Value"]                   
@@ -962,7 +959,7 @@ lengthODPP[,"DateCode"] <- str_sub(lengthODPP[,"DateCode"], 1, 4)
 lengthODPP[,"Measurement"] <- gsub("Mean.*", "Mean", lengthODPP[,"Measurement"])
 lengthODPP[,"Measurement"] <- gsub("Median.*", "Median", lengthODPP[,"Measurement"])
 colnames(lengthODPP)[colnames(lengthODPP)=="Length"] <- "Length Of Care Home Stay"
-colnames(lengthODPP)[colnames(lengthODPP)=="ClientGroup"] <- "Care Home Client Group"
+colnames(lengthODPP)[colnames(lengthODPP)=="ClientGroup"] <- "Main Client Group in Care Home"
 colnames(lengthODPP)[colnames(lengthODPP)=="Complete"] <- "Care Home Stay Complete"
 
 lengthODPP[,"Length Of Care Home Stay"] <- str_replace_all(lengthODPP[,"Length Of Care Home Stay"], 
